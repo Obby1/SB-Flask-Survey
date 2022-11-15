@@ -1,0 +1,13 @@
+{% extends 'base.html'  %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h1>Home Page!</h1>
+<form action="/begin" method="POST">
+<p>{{title}} </p>
+
+<p>{{instructions}}</p>
+
+<button> Begin </button>
+</form>
+{% endblock %}
