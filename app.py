@@ -3,6 +3,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from surveys import satisfaction_survey as survey
 
 # RESPONSES_KEY will be the dictionary key inside of session. You will use this to access session data
+# saving response key string out here ensures no typos later
 RESPONSES_KEY = "responses"
 
 app = Flask(__name__)
@@ -43,7 +44,7 @@ def handle_question():
 
     ## add this response to the session object
 
-    # set responses to session[RESPONSES_KEY]
+    # set responses to session[RESPONSES_KEY] which is a list of responses
     responses = session[RESPONSES_KEY]
 
     # add choice to responses
@@ -58,17 +59,19 @@ def handle_question():
         return redirect("/complete")
 
     else:
-        # redirect to question/# below
+        # redirect to next question. if answered first question, len of responses is 1, will redirect to
+        # questions/1 (which is the next question). first q was questions/0
         return redirect(f"/questions/{len(responses)}")
 
 
 # unanswered questions redirects here
-# 
+
 @app.route("/questions/<int:qid>")
 def show_question(qid):
     """Display current question."""
     responses = session.get(RESPONSES_KEY)
 
+    # if no responses in list send back to home
     if (responses is None):
         # trying to access question page too soon
         return redirect("/")
@@ -80,14 +83,16 @@ def show_question(qid):
     if (len(responses) != qid):
         # Trying to access questions out of order.
         flash(f"Invalid question id: {qid}.")
+        # send back to proper page
         return redirect(f"/questions/{len(responses)}")
 
     question = survey.questions[qid]
     return render_template(
         "question.html", question_num=qid, question=question)
 
+
 @app.route("/complete")
 def complete():
     """Survey complete. Show completion page."""
-
-    return render_template("completion.html")
+    question = survey.questions
+    return render_template("completion.html", responses=session.get(RESPONSES_KEY), question = question )
