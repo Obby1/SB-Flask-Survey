@@ -39,7 +39,7 @@ def start_survey():
 def handle_question():
     """Save response and redirect to next question."""
 
-    # get the response choice from question.html form 
+    # get the response choice from question.html form with name 'answer'
     choice = request.form['answer']
 
     ## add this response to the session object
@@ -69,6 +69,10 @@ def handle_question():
 @app.route("/questions/<int:qid>")
 def show_question(qid):
     """Display current question."""
+    # set responses variable to session RESPONSES KEY
+    #  . get retrieves variables or returns with NONE. calling session[key] may return empty array
+    # easier to work with .get as it will return None
+    # Double check above with Krunal (using session.get below vs using session[resonses_key])
     responses = session.get(RESPONSES_KEY)
 
     # if no responses in list send back to home
@@ -95,4 +99,8 @@ def show_question(qid):
 def complete():
     """Survey complete. Show completion page."""
     question = survey.questions
+    # import pdb
+    # pdb.set_trace()
+    # or use raise to debug with pdb:
+    # raise
     return render_template("completion.html", responses=session.get(RESPONSES_KEY), question = question )
